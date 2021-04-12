@@ -1,0 +1,16 @@
+on: [pull_request]
+name: build and test Docker images
+env:
+  GOPROXY: "https://proxy.golang.org"
+jobs:
+  test_arm:
+    runs-on: [linux, ARM64]
+    steps:
+    - name: Build
+      run: docker build -t openapi-generator-cli-test modules/openapi-generator-cli/
+    - name: test
+      run: |
+        docker run -d openapi-generator-cli-test --rm -v "${PWD}:/local" generate \
+        -i https://raw.githubusercontent.com/openapitools/openapi-generator/master/modules/openapi-generator/src/test/resources/3_0/petstore.yaml \
+        -g go \
+        -o /local/out/go
